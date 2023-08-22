@@ -1,0 +1,3 @@
+[submodule "data/repos/VELD_example_repos"]
+	path = data/repos/VELD_example_repos
+	url = git@github.com:steffres/VELD_example_repos.git
