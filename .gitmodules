@@ -1,3 +1,6 @@
 [submodule "src/veld_repo/data/VELD_example_repos"]
 	path = src/veld_repo/data/VELD_example_repos
 	url = git@github.com:steffres/VELD_example_repos.git
+[submodule "src/veld_validator"]
+	path = src/veld_validator
+	url = git@github.com:acdh-oeaw/veld_validator.git
