@@ -12,12 +12,12 @@ services:
       dockerfile: ./Dockerfile
     volumes:
       - ../src:/src
-    depends_on:
-      veldhub_db:
-        condition: service_started
     command: python /src/main.py
     networks:
       - veldhub_backend_network
+    depends_on:
+      veldhub_db:
+        condition: service_started
 
 networks:
   veldhub_backend_network:
