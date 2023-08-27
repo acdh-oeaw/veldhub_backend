@@ -4,3 +4,6 @@
 [submodule "src/veld_validator"]
 	path = src/veld_validator
 	url = git@github.com:acdh-oeaw/veld_validator.git
+[submodule "src/veld_registry"]
+	path = src/veld_registry
+	url = git@github.com:steffres/veld_registry.git
