@@ -1,4 +1,0 @@
-
-class VELD():
-    name = "-- VELD --"
-

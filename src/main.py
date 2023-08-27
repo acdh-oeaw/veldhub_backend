@@ -1,10 +1,8 @@
-
-print("module: main")
-
-from veld_registry.src.veld_registry import run
-
-run()
-
+from veld_registry.src.veld_registry import init_connection
+from veld_registry.src.veld_registry import init_connection
 from veld_validator.src.veld_validator import validate
 
-validate(42)
+
+if __name__ == "__main__":
+    init_connection()
+    validate(42)
