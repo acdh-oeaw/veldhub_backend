@@ -2,7 +2,7 @@
 services:
   veldhub_db:
     extends:
-      file: ../src/veld_registry/docker/compose.yaml
+      file: ./src/veld_registry/compose.yaml
       service: veldhub_db
     networks:
       - veldhub_backend_network
@@ -11,7 +11,7 @@ services:
     build: 
       dockerfile: ./Dockerfile
     volumes:
-      - ../src:/src
+      - ./src:/src
     command: python /src/main.py
     networks:
       - veldhub_backend_network
