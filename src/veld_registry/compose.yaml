@@ -1,0 +1,18 @@
+services:
+  veldhub_db:
+    build: 
+      dockerfile: ./Dockerfile
+    environment:
+      POSTGRES_USER: "ps_user"
+      POSTGRES_DB: "ps_database"
+      POSTGRES_PASSWORD: "ps_password"
+      #POSTGRES_USER: $POSTGRES_USER
+      #POSTGRES_DB: $POSTGRES_DB
+      #POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+    volumes:
+      - ../data/:/var/lib/postgresql/data
+    networks:
+      - veldhub_backend_network
+
+networks:
+  veldhub_backend_network:
