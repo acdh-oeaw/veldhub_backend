@@ -1,21 +1,25 @@
 import psycopg2
-from veld_core.dataclasses import Veld, VeldRepo
+from veld_core.veld_dataclasses import Veld, VeldRepo
 
 
-def insert_veld_repo(veld_repo: VeldRepo):
-    pass
+def register_veld_repo(veld_repo: VeldRepo) -> VeldRepo:
+    for veld in veld_repo:
+        veld = register_veld(veld)
+    return veld_repo
 
 
-def update_veld_repo(veld_repo: VeldRepo):
-    pass
+def register_veld(veld: Veld) -> Veld:
+    return veld
 
 
-def get_veld_repo() -> VeldRepo:
-    pass
-
-
-def get_veld() -> Veld:
-    pass
+def get_veld_repos(**kwargs) -> VeldRepo:
+    veld_repo = None
+    return veld_repo
+    
+    
+def get_velds(**kwargs) -> Veld:
+    veld = None
+    return veld
 
 
 def _init_connection():

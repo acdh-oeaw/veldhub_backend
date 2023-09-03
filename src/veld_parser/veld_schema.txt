@@ -1,0 +1,1 @@
+No idea yet, what kind of format is used for a yaml schema, as there are multiple options.
