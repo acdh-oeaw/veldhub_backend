@@ -1,8 +1,0 @@
-services:
-  veld_validator:
-    build: 
-      dockerfile: ./Dockerfile
-    volumes:
-      - ./src:/src
-    command: python /src/veld_validator.py
-
