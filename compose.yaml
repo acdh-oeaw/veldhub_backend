@@ -7,7 +7,7 @@ services:
     networks:
       - veldhub_backend_network
 
-  veldhub_backend:
+  veldhub_backend_full:
     build: 
       dockerfile: ./Dockerfile
     volumes:
@@ -18,6 +18,12 @@ services:
     depends_on:
       veldhub_db:
         condition: service_started
+
+  veldhub_backend_src:
+    build:
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./src:/src
 
 networks:
   veldhub_backend_network:

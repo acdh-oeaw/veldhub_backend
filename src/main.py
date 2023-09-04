@@ -9,7 +9,7 @@ from veld_repos.src import veld_repos
 def register_external_repo(repo_url) -> Set[VeldRepo]:
     repo_path = veld_repos.pull_veld_repo(repo_url)
     veld_repo_set = register_internal_repos(repo_path)
-    return repo_path
+    return veld_repo_set
 
 
 def register_internal_repos(repo_path) -> Set[VeldRepo]:
@@ -19,6 +19,7 @@ def register_internal_repos(repo_path) -> Set[VeldRepo]:
             if type(veld) is ExecutableVeld or type(veld) is ChainVeld:
                 veld = build_veld_images(veld)
         veld_repo = veld_registry.register_veld_repo(veld_repo)
+    return veld_repo_set
         
 
 def build_veld_images(veld: ExecutableVeld | ChainVeld) -> ExecutableVeld | ChainVeld:
@@ -35,3 +36,7 @@ def get_veld_repos(**kwargs) -> VeldRepo:
     
 def get_velds(**kwargs) -> Veld:
     return veld_registry.get_velds(**kwargs)
+
+
+if __name__ == "__main__":
+    print("veldhub backend main")
