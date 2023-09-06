@@ -7,8 +7,8 @@ services:
     networks:
       - veldhub_backend_network
 
-  veldhub_backend_full:
-    build: 
+  veldhub_backend_src_with_db:
+    build:
       dockerfile: ./Dockerfile
     volumes:
       - ./src:/src
