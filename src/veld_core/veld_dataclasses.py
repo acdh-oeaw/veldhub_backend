@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Self
+from typing import Dict, List, Self
 
 
 # dummy class definition for VeldRepo.
@@ -10,9 +10,11 @@ class Veld:
 
 @dataclass(kw_only=True)
 class VeldRepo:
-    internal_id: int
-    local_path: str
+    internal_id: int = None
+    local_path: str = None
+    remote_url: str = None
     head: Veld = None
+    commits: Dict[str, List[Veld]] = None
 
     def __iter__(self):
         pass
@@ -25,16 +27,23 @@ class VeldRepo:
     
     def __eq__(self, other):
         pass
+    
+    def __str__(self):
+        pass
+    
+    def __repr__(self):
+        pass
 
 
-@dataclass(kw_only=True)
+@dataclass()
 class Veld:
-    internal_id: int
-    repo: VeldRepo
-    commit: str
-    branch: List[str]
-    rel_ancestors: List[Veld] = field(default_factory=list)
-    rel_successors: List[Veld] = field(default_factory=list)
+    file_name: str = None
+    repo: VeldRepo = None
+    commit: str = None
+    branch: List[str] = None
+    rel_parents: List[Veld] = None
+    rel_successors: List[Veld] = None
+    internal_id: int = None
     
     def __hash__(self):
         pass
@@ -50,10 +59,10 @@ class DataVeld(Veld):
 
 @dataclass(kw_only=True)
 class ExecutableVeld(Veld):
-    image_digest: str
+    image_digest: str = None
 
 
 @dataclass(kw_only=True)
 class ChainVeld(Veld):
-    image_digest: str
-    sub_velds: List[Veld]
+    image_digest: str = None
+    sub_velds: List[Veld] = None
