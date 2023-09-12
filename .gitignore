@@ -1,3 +1,4 @@
 /helper_scripts
-/src/veld_registry/data/
-/src/veld_repos/data/
+/modules/veld_registry/data/
+/modules/veld_repos/data/
+
