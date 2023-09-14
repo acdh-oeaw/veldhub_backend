@@ -84,23 +84,21 @@ def load_veld_repos(repos_folder: str, veld_repo_dict: Dict = None) -> Set[VeldR
     
     def link_sub_velds(veld_repo_dict):
         for veld_repo in veld_repo_dict.values():
-            veld_repo: VeldRepo
-            for veld_list in veld_repo.commits.values():
-                for veld in veld_list:
-                    if type(veld) is ChainVeld and veld.submodules_data_tmp is not None:
-                        veld: ChainVeld
-                        for sm in veld.submodules_data_tmp:
-                            sub_veld_repo = veld_repo_dict.get(sm[1])
-                            if sub_veld_repo is None:
-                                # TODO: priority medium: pull and crawl sub_veld_repo if it doesn't
-                                #  exist locally yet.
-                                print(f"sub_veld_repo not yet crawled: {sm[1]}")
-                            else:
-                                sub_veld_list = sub_veld_repo.commits[sm[0]]
-                                for sub_veld in sub_veld_list:
-                                    if veld.sub_velds is None:
-                                        veld.sub_velds = []
-                                    veld.sub_velds.append(sub_veld)
+            for veld in veld_repo:
+                if type(veld) is ChainVeld and veld.submodules_data_tmp is not None:
+                    veld: ChainVeld
+                    for sm in veld.submodules_data_tmp:
+                        sub_veld_repo = veld_repo_dict.get(sm[1])
+                        if sub_veld_repo is None:
+                            # TODO: priority medium: pull and crawl sub_veld_repo if it doesn't
+                            #  exist locally yet.
+                            print(f"sub_veld_repo not yet crawled: {sm[1]}")
+                        else:
+                            sub_veld_list = sub_veld_repo.commits[sm[0]]
+                            for sub_veld in sub_veld_list:
+                                if veld.sub_velds is None:
+                                    veld.sub_velds = []
+                                veld.sub_velds.append(sub_veld)
         return veld_repo_dict
     
     if veld_repo_dict is None:
