@@ -1,7 +1,11 @@
+import os
+from typing import List
+
 from veld_core.veld_dataclasses import Veld, DataVeld, ExecutableVeld, ChainVeld
 import yaml
 
-# TODO: make it so that the schema is only loaded once
+# TODO: priority medium: Implement veld schema validator.
+#  Also, make it so that the schema is only loaded once
 def read_schema():
     schema_path = "src/veld_parser/veld_schema.txt"
     return None
@@ -25,8 +29,26 @@ def parse_veld_yaml_content(yaml_content) -> Veld | None:
     return veld
     
 
-def parse_veld_yaml_file(yaml_path) -> Veld:
-    with open(yaml_path, "r") as f:
-        yaml_content = None
-        veld = parse_veld_yaml_content(yaml_content)
-        return veld
+def parse_veld_yaml_file(yaml_file_path) -> Veld | None:
+    veld = None
+    with open(yaml_file_path, "r") as f:
+        veld = parse_veld_yaml_content(f.read())
+    return veld
+
+
+def parse_veld_folder(folder) -> List[Veld] | None:
+    veld_list = []
+    for file_name in os.listdir(folder):
+        if (
+            file_name.startswith("veld")
+        ) and (
+            file_name.endswith("yaml") or file_name.endswith("yml")
+        ):
+            veld = parse_veld_yaml_file(folder + "/" + file_name)
+            if veld is not None:
+                veld.file_name = file_name
+                veld_list.append(veld)
+    if veld_list != []:
+        return veld_list
+    else:
+        return None

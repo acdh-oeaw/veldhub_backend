@@ -23,16 +23,16 @@ class VeldRepo:
         pass
     
     def __hash__(self):
-        pass
+        return hash(self.remote_url)
     
     def __eq__(self, other):
-        pass
+        return self.remote_url == other.remote_url
     
     def __str__(self):
         pass
     
     def __repr__(self):
-        pass
+        return f"VeldRepo: {self.remote_url}"
 
 
 @dataclass()
@@ -54,15 +54,23 @@ class Veld:
 
 @dataclass(kw_only=True)
 class DataVeld(Veld):
-    pass
+    
+    def __repr__(self):
+        return f"DataVeld: {self.commit} at {self.repo.remote_url}"
 
 
 @dataclass(kw_only=True)
 class ExecutableVeld(Veld):
     image_digest: str = None
+    
+    def __repr__(self):
+        return f"ExecutableVeld: {self.commit} at {self.repo.remote_url}"
 
 
 @dataclass(kw_only=True)
 class ChainVeld(Veld):
     image_digest: str = None
     sub_velds: List[Veld] = None
+    
+    def __repr__(self):
+        return f"ChainVeld: {self.commit} at {self.repo.remote_url}"

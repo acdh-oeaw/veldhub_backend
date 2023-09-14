@@ -4,7 +4,7 @@ from typing import Dict, List, Set, Tuple
 from git import GitCommandError, Repo
 
 from veld_core.veld_dataclasses import ChainVeld, Veld, VeldRepo
-from veld_parser.veld_parser import parse_veld_yaml_content
+from veld_parser.veld_parser import parse_veld_folder
 
 
 def pull_veld_repo(repo_url) -> str:
@@ -12,11 +12,21 @@ def pull_veld_repo(repo_url) -> str:
     return repo_path
 
 
-def load_veld_repos(potential_repo_path: str, veld_repo_dict: Dict = None) -> Dict[str, VeldRepo]:
+# TODO: priority very low: Adapt the crawler, so that submodules must not be all pulled as well.
+#  currently all submodules must be fully and recursively pulled, so that the crawler can conviently
+#  crawl them. However this would lead to redundancy and higher data usage. Should data usage become
+#  a problem, the crawler must be refactored.
+def load_veld_repos(repos_folder: str, veld_repo_dict: Dict = None) -> Set[VeldRepo]:
     
-    def build_this_veld_repo(repo, repo_path) -> VeldRepo:
+    def build_this_veld_repo(potential_repo_path) -> VeldRepo | None:
         
         def checkout_with_submodules(repo, commit):
+            """
+            The commits need to be checked out, as well as their submodules. Simply `git show` or
+            `git ls-tree` is not sufficient, because the crawler needs to go into the submodules'
+            directories to fetch their remote url. Probably. Maybe there might be a more elegant
+            solution?
+            """
             # running verbose executes, because GitPython is buggy on occasions, and manual
             # executions seem to work more reliably.
             # Especially `repo.git.submodule('update', '--init')` causes problems
@@ -25,26 +35,8 @@ def load_veld_repos(potential_repo_path: str, veld_repo_dict: Dict = None) -> Di
             repo.git.execute(["git", "clean", "-ffd"])
             return repo
         
-        def build_velds(repo_path) -> List[Veld] | None:
-            veld_list = []
-            for file_name in os.listdir(repo_path):
-                if (
-                    file_name.startswith("veld")
-                ) and (
-                    file_name.endswith("yaml") or file_name.endswith("yml")
-                ):
-                    with open(repo_path + "/" + file_name, "r") as f:
-                        veld = parse_veld_yaml_content(f.read())
-                    if veld is not None:
-                        veld.file_name = file_name
-                        veld_list.append(veld)
-            if veld_list != []:
-                return veld_list
-            else:
-                return None
-        
-        def get_submodule_data(repo_path) -> List[Tuple[str, str]]:
-            submodules_data = []
+        def get_submodule_data(repo_path) -> List[Tuple[str, str]] | None:
+            submodules_data = None
             try:
                 with open(repo_path + "/.gitmodules", "r") as f:
                     submodules_refs = f.read()
@@ -58,40 +50,70 @@ def load_veld_repos(potential_repo_path: str, veld_repo_dict: Dict = None) -> Di
                         subrepo = Repo(repo_path + "/" + sm_path)
                         sm_url = subrepo.remote().url
                         sm_commit = subrepo.head.commit.hexsha
+                        if submodules_data is None:
+                            submodules_data = []
                         submodules_data.append((sm_commit, sm_url))
             return submodules_data
         
-        veld_repo = VeldRepo(commits={})
-        repo = checkout_with_submodules(repo, "main")
-        for commit in list(repo.iter_commits()):
-            try:
-                repo = checkout_with_submodules(repo, commit.hexsha)
-            except GitCommandError as ex:
-                print(ex)
-            else:
-                veld_list_per_commit = build_velds(repo_path)
-                if veld_list_per_commit is not None:
-                    veld_repo.commits[commit.hexsha] = veld_list_per_commit
-                    for veld in veld_list_per_commit:
-                        veld.commit = commit.hexsha
-                        veld.repo = veld_repo
-                        if type(veld) is ChainVeld:
-                            veld.submodules_data = get_submodule_data(repo_path)
-                            print(veld.submodules_data)
-        repo = checkout_with_submodules(repo, "main")
+        veld_repo = None
+        try:
+            repo = Repo(potential_repo_path)
+        except:
+            print(f"not a repo: {potential_repo_path}")
+        else:
+            print(f"parsing for potential veld repo: {potential_repo_path}")
+            repo = checkout_with_submodules(repo, "main")
+            for commit in list(repo.iter_commits()):
+                try:
+                    repo = checkout_with_submodules(repo, commit.hexsha)
+                except GitCommandError as ex:
+                    print(ex)
+                else:
+                    veld_list_per_commit = parse_veld_folder(potential_repo_path)
+                    if veld_list_per_commit is not None:
+                        if veld_repo is None:
+                            veld_repo = VeldRepo(remote_url=repo.remote().url, commits={})
+                        veld_repo.commits[commit.hexsha] = veld_list_per_commit
+                        for veld in veld_list_per_commit:
+                            veld.commit = commit.hexsha
+                            veld.repo = veld_repo
+                            if type(veld) is ChainVeld:
+                                veld.submodules_data_tmp = get_submodule_data(potential_repo_path)
+            repo = checkout_with_submodules(repo, "main")
         return veld_repo
+    
+    def link_sub_velds(veld_repo_dict):
+        for veld_repo in veld_repo_dict.values():
+            veld_repo: VeldRepo
+            for veld_list in veld_repo.commits.values():
+                for veld in veld_list:
+                    if type(veld) is ChainVeld and veld.submodules_data_tmp is not None:
+                        veld: ChainVeld
+                        for sm in veld.submodules_data_tmp:
+                            sub_veld_repo = veld_repo_dict.get(sm[1])
+                            if sub_veld_repo is None:
+                                # TODO: priority medium: pull and crawl sub_veld_repo if it doesn't
+                                #  exist locally yet.
+                                print(f"sub_veld_repo not yet crawled: {sm[1]}")
+                            else:
+                                sub_veld_list = sub_veld_repo.commits[sm[0]]
+                                for sub_veld in sub_veld_list:
+                                    if veld.sub_velds is None:
+                                        veld.sub_velds = []
+                                    veld.sub_velds.append(sub_veld)
+        return veld_repo_dict
     
     if veld_repo_dict is None:
         veld_repo_dict = {}
-    for dir in (
-        [potential_repo_path]
-        + [potential_repo_path + "/" + d for d in os.listdir(potential_repo_path)]
-    ):
-        try:
-            repo = Repo(dir)
-        except:
-            print(f"not a repo: {dir}")
-        else:
-            veld_repo = build_this_veld_repo(repo, potential_repo_path)
-    return veld_repo_dict
+    potential_repo_list = [repos_folder + "/" + pr for pr in os.listdir(repos_folder)]
+    for potential_repo_path in potential_repo_list:
+        veld_repo = build_this_veld_repo(potential_repo_path)
+        if veld_repo is not None:
+            print(f"veld repo constructed: {potential_repo_path}")
+            veld_repo_dict[veld_repo.remote_url] = veld_repo
+    veld_repo_dict = link_sub_velds(veld_repo_dict)
+    veld_set = set(veld_repo_dict.values())
+    if len(veld_set) != len(veld_repo_dict):
+        raise Exception("Something must have gone wrong.")
+    return veld_set
     
