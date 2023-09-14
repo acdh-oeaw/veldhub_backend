@@ -1,1 +1,0 @@
-CREATE TABLE test_table (test_col_1 INT);
