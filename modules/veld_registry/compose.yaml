@@ -3,13 +3,11 @@ services:
     build: 
       dockerfile: ./Dockerfile
     environment:
-      POSTGRES_USER: "ps_user"
-      POSTGRES_DB: "ps_database"
-      POSTGRES_PASSWORD: "ps_password"
-      #POSTGRES_USER: $POSTGRES_USER
-      #POSTGRES_DB: $POSTGRES_DB
-      #POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_DB: $POSTGRES_DB
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
     ports:
       - 5432:5432
     volumes:
       - ./data/:/var/lib/postgresql/data
+      - ./sql_init_scripts/:/docker-entrypoint-initdb.d/
