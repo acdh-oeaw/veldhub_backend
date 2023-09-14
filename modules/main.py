@@ -1,6 +1,6 @@
 from typing import List, Set
 
-from veld_exec import veld_exec
+from veld_docker import veld_docker
 from veld_core.veld_dataclasses import VeldRepo, Veld, ExecutableVeld, ChainVeld
 from veld_registry.src import veld_registry
 from veld_repos.src import veld_repos
@@ -15,19 +15,20 @@ def register_external_repo(repo_url) -> Set[VeldRepo]:
 def register_internal_repos(repo_path) -> Set[VeldRepo]:
     veld_repo_set = veld_repos.load_veld_repos(repo_path)
     for veld_repo in veld_repo_set:
-        for veld in veld_repo:
-            if type(veld) is ExecutableVeld or type(veld) is ChainVeld:
-                veld = build_veld_images(veld)
+        for veld_list in veld_repo.commits.values():
+            for veld in veld_list:
+                if type(veld) is ExecutableVeld or type(veld) is ChainVeld:
+                    veld = build_veld_images(veld)
         veld_repo = veld_registry.register_veld_repo(veld_repo)
     return veld_repo_set
 
 
 def build_veld_images(veld: ExecutableVeld | ChainVeld) -> ExecutableVeld | ChainVeld:
-    return veld_exec.build_veld_image(veld)
+    return veld_docker.build_veld_image(veld)
 
 
 def run_chain_veld(veld: ChainVeld):
-    veld_exec.run_chain_veld(veld)
+    veld_docker.run_chain_veld(veld)
 
 
 def get_veld_repos(**kwargs) -> VeldRepo:
@@ -39,5 +40,4 @@ def get_velds(**kwargs) -> Veld:
 
 
 if __name__ == "__main__":
-    veld_repo_set = veld_repos.load_veld_repos("./veld_repos/data/VELD_example_repos/")
-    print
+    register_internal_repos("./veld_repos/data/VELD_example_repos/")
