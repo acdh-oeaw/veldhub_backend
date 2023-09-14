@@ -15,13 +15,12 @@ class VeldRepo:
     remote_url: str = None
     head: Veld = None
     commits: Dict[str, List[Veld]] = None
-
+    
     def __iter__(self):
-        pass
-    
-    def __next__(self):
-        pass
-    
+        for veld_list in self.commits.values():
+            for veld in veld_list:
+                yield veld
+
     def __hash__(self):
         return hash(self.remote_url)
     
@@ -33,7 +32,7 @@ class VeldRepo:
     
     def __repr__(self):
         return f"VeldRepo: {self.remote_url}"
-
+    
 
 @dataclass()
 class Veld:
