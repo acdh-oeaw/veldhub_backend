@@ -112,6 +112,6 @@ def load_veld_repos(repos_folder: str, veld_repo_dict: Dict = None) -> Set[VeldR
     veld_repo_dict = link_sub_velds(veld_repo_dict)
     veld_set = set(veld_repo_dict.values())
     if len(veld_set) != len(veld_repo_dict):
-        raise Exception("Something must have gone wrong.")
+        raise Exception("Somehow, redundant repos had been parsed.")
     return veld_set
     
