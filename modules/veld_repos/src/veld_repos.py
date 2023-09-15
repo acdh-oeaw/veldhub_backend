@@ -72,7 +72,12 @@ def load_veld_repos(repos_folder: str, veld_repo_dict: Dict = None) -> Set[VeldR
                     veld_list_per_commit = parse_veld_folder(potential_repo_path)
                     if veld_list_per_commit is not None:
                         if veld_repo is None:
-                            veld_repo = VeldRepo(remote_url=repo.remote().url, commits={})
+                            veld_repo = VeldRepo(
+                                local_path=potential_repo_path,
+                                remote_url=repo.remote().url,
+                                commits={},
+                                head_commit=commit.hexsha,
+                            )
                         veld_repo.commits[commit.hexsha] = veld_list_per_commit
                         for veld in veld_list_per_commit:
                             veld.commit = commit.hexsha
@@ -103,6 +108,8 @@ def load_veld_repos(repos_folder: str, veld_repo_dict: Dict = None) -> Set[VeldR
     
     if veld_repo_dict is None:
         veld_repo_dict = {}
+    if repos_folder.endswith("/"):
+        repos_folder = repos_folder[:-1]
     potential_repo_list = [repos_folder + "/" + pr for pr in os.listdir(repos_folder)]
     for potential_repo_path in potential_repo_list:
         veld_repo = build_this_veld_repo(potential_repo_path)

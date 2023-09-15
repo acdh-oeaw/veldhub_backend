@@ -13,7 +13,7 @@ class VeldRepo:
     internal_id: int = None
     local_path: str = None
     remote_url: str = None
-    head: Veld = None
+    head_commit: str = None
     commits: Dict[str, List[Veld]] = None
     
     def __iter__(self):
