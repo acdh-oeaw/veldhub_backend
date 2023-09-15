@@ -36,9 +36,3 @@ def get_veld_repos(**kwargs) -> VeldRepo:
 
 def get_velds(**kwargs) -> Veld:
     return veld_registry.get_velds(**kwargs)
-
-
-if __name__ == "__main__":
-    veld_repo_set = register_internal_repos("./veld_repos/data")
-    for veld_repo in veld_repo_set:
-        build_docker_images_of_repo(veld_repo)

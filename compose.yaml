@@ -12,7 +12,6 @@ services:
       dockerfile: ./Dockerfile
     volumes:
       - ./modules:/modules
-    command: python /modules/main.py
     environment:
       DB_HOST: $DB_HOST
       DB_DATABASE: $DB_DATABASE
@@ -29,7 +28,6 @@ services:
       dockerfile: ./Dockerfile
     volumes:
       - ./modules:/modules
-    command: python /modules/main.py
 
 networks:
   veldhub_backend_network:

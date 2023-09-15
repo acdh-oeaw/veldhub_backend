@@ -1,4 +1,5 @@
 /helper_scripts/envvars.sh
 /modules/veld_registry/data/
 /modules/veld_repos/data/
+/modules/dev.py
 
