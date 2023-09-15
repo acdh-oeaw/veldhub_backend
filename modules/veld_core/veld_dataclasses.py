@@ -10,7 +10,7 @@ class Veld:
 
 @dataclass(kw_only=True)
 class VeldRepo:
-    internal_id: int = None
+    id: int = None
     local_path: str = None
     remote_url: str = None
     head_commit: str = None
@@ -36,13 +36,13 @@ class VeldRepo:
 
 @dataclass()
 class Veld:
-    file_name: str = None
+    id: int = None
     repo: VeldRepo = None
     commit: str = None
+    file_name: str = None
     branch: List[str] = None
     rel_parents: List[Veld] = None
     rel_successors: List[Veld] = None
-    internal_id: int = None
     
     def __hash__(self):
         pass

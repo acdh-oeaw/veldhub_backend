@@ -1,3 +1,4 @@
 #!/bin/bash
 source ./envvars.sh
-psql "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB=}"
+cd ..
+docker compose run veldhub_backend_with_db psql "postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_DATABASE}"

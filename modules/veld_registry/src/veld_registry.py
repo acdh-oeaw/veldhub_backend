@@ -1,5 +1,15 @@
 import psycopg2
+
+from veld_core import settings
 from veld_core.veld_dataclasses import Veld, VeldRepo
+
+
+conn = psycopg2.connect(
+    host=settings.db_host,
+    database=settings.db_database,
+    user=settings.db_user,
+    password=settings.db_password,
+)
 
 
 def register_veld_repo(veld_repo: VeldRepo) -> VeldRepo:
@@ -22,11 +32,3 @@ def get_velds(**kwargs) -> Veld:
     return veld
 
 
-def _init_connection():
-    conn = psycopg2.connect(
-        host="veldhub_db",
-        database="ps_database",
-        user="ps_user",
-        password="ps_password"
-    )
-    return conn

@@ -13,6 +13,11 @@ services:
     volumes:
       - ./modules:/modules
     command: python /modules/main.py
+    environment:
+      DB_HOST: $DB_HOST
+      DB_DATABASE: $DB_DATABASE
+      DB_USER: $DB_USER
+      DB_PASSWORD: $DB_PASSWORD
     networks:
       - veldhub_backend_network
     depends_on:
