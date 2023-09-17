@@ -1,15 +1,20 @@
 import psycopg2
+from psycopg2 import OperationalError
 
 from veld_core import settings
 from veld_core.veld_dataclasses import Veld, VeldRepo
 
 
-conn = psycopg2.connect(
-    host=settings.db_host,
-    database=settings.db_database,
-    user=settings.db_user,
-    password=settings.db_password,
-)
+try:
+    conn = psycopg2.connect(
+        host=settings.db_host,
+        database=settings.db_database,
+        user=settings.db_user,
+        password=settings.db_password,
+    )
+except OperationalError as ex:
+    print(ex)
+    conn = None
 
 
 def register_veld_repo(veld_repo: VeldRepo) -> VeldRepo:
