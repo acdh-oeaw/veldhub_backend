@@ -37,12 +37,15 @@ class VeldRepo:
 @dataclass()
 class Veld:
     id: int = None
-    repo: VeldRepo = None
+    veld_repo: VeldRepo = None
     commit: str = None
     file_name: str = None
     branch: List[str] = None
     rel_parents: List[Veld] = None
     rel_successors: List[Veld] = None
+    
+    def __repr__(self):
+        return f"Veld: {self.commit} at {self.veld_repo.remote_url}"
     
     def __hash__(self):
         pass
@@ -55,7 +58,7 @@ class Veld:
 class DataVeld(Veld):
     
     def __repr__(self):
-        return f"DataVeld: {self.commit} at {self.repo.remote_url}"
+        return f"DataVeld: {self.commit} at {self.veld_repo.remote_url}"
 
 
 @dataclass(kw_only=True)
@@ -63,7 +66,7 @@ class ExecutableVeld(Veld):
     image_digest: str = None
     
     def __repr__(self):
-        return f"ExecutableVeld: {self.commit} at {self.repo.remote_url}"
+        return f"ExecutableVeld: {self.commit} at {self.veld_repo.remote_url}"
 
 
 @dataclass(kw_only=True)
@@ -72,4 +75,5 @@ class ChainVeld(Veld):
     sub_velds: List[Veld] = None
     
     def __repr__(self):
-        return f"ChainVeld: {self.commit} at {self.repo.remote_url}"
+        return f"ChainVeld: {self.commit} at {self.veld_repo.remote_url}"
+

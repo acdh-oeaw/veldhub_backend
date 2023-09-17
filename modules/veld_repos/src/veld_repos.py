@@ -81,7 +81,7 @@ def load_veld_repos(repos_folder: str, veld_repo_dict: Dict = None) -> Set[VeldR
                         veld_repo.commits[commit.hexsha] = veld_list_per_commit
                         for veld in veld_list_per_commit:
                             veld.commit = commit.hexsha
-                            veld.repo = veld_repo
+                            veld.veld_repo = veld_repo
                             if type(veld) is ChainVeld:
                                 veld.submodules_data_tmp = get_submodule_data(potential_repo_path)
             repo = checkout_with_submodules(repo, "main")
