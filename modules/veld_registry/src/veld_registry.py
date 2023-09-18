@@ -4,18 +4,8 @@ import pymongo
 from bson import ObjectId
 from pymongo.collection import Collection
 
-from veld_core import settings
 from veld_core.veld_dataclasses import ChainVeld, DataVeld, ExecutableVeld, Veld, VeldRepo
-
-
-try:
-    client = pymongo.MongoClient(
-        f"mongodb://{settings.db_user}:{settings.db_password}@{settings.db_host}:{settings.db_port}"
-    )
-    db = client[settings.db_database]
-except Exception as ex:
-    print(ex)
-    db = None
+from veld_registry.src.db import db
 
 
 def upsert_veld(veld: Veld) -> Veld:
