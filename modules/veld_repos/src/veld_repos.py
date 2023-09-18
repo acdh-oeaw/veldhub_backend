@@ -20,7 +20,7 @@ def load_veld_repos(repos_folder: str, veld_repo_dict: Dict = None) -> Set[VeldR
     
     def build_this_veld_repo(potential_repo_path) -> VeldRepo | None:
         
-        def checkout_with_submodules(repo, commit):
+        def checkout_with_submodules(repo: Repo, commit: str):
             """
             The commits need to be checked out, as well as their submodules. Simply `git show` or
             `git ls-tree` is not sufficient, because the crawler needs to go into the submodules'
@@ -30,9 +30,23 @@ def load_veld_repos(repos_folder: str, veld_repo_dict: Dict = None) -> Set[VeldR
             # running verbose executes, because GitPython is buggy on occasions, and manual
             # executions seem to work more reliably.
             # Especially `repo.git.submodule('update', '--init')` causes problems
-            repo.git.execute(["git", "checkout", commit])
-            repo.git.execute(["git", "submodule", "update", "--init", "--recursive"])
-            repo.git.execute(["git", "clean", "-ffd"])
+            commit_working = repo.commit().hexsha
+            try:
+                repo.git.execute(["git", "checkout", commit])
+                repo.git.execute(["git", "submodule", "update", "--init", "--recursive"])
+                repo.git.execute(["git", "clean", "-ffd"])
+            except Exception as ex:
+                commit_other = commit
+                if commit == "main":
+                    commit_other = repo.git.execute(["git", "rev-parse", commit])
+                # TODO: priority very low: check if this rollback mechanism is working as intented
+                #  when coping with faulty / missing commits.
+                if commit_other != commit_working:
+                    print(ex)
+                    print("checking out previously working commit")
+                    repo = checkout_with_submodules(repo, commit_working)
+                else:
+                    raise ex
             return repo
         
         def get_submodule_data(repo_path) -> List[Tuple[str, str]] | None:
