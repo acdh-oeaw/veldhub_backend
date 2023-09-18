@@ -30,9 +30,9 @@ def run_chain_veld(veld: ChainVeld):
     veld_docker.run_chain_veld(veld)
 
 
-def get_veld_repos(**kwargs) -> VeldRepo:
+def get_veld_repos(**kwargs) -> List[VeldRepo]:
     return veld_registry.get_veld_repos(**kwargs)
 
 
-def get_velds(**kwargs) -> Veld:
+def get_velds(**kwargs) -> List[Veld]:
     return veld_registry.get_velds(**kwargs)
