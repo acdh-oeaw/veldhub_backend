@@ -15,7 +15,7 @@ def register_external_repo(repo_url) -> Set[VeldRepo]:
 def register_internal_repos(repo_path) -> Set[VeldRepo]:
     veld_repo_set = veld_repos.load_veld_repos(repo_path)
     for veld_repo in veld_repo_set:
-        veld_repo = veld_registry.register_veld_repo(veld_repo)
+        veld_repo = veld_registry.upsert_veld_repo(veld_repo)
     return veld_repo_set
 
 

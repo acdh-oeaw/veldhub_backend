@@ -3,11 +3,9 @@ services:
     build: 
       dockerfile: ./Dockerfile
     environment:
-      POSTGRES_DB: $DB_DATABASE
-      POSTGRES_USER: $DB_USER
-      POSTGRES_PASSWORD: $DB_PASSWORD
+      MONGO_INITDB_ROOT_USERNAME: $DB_USER
+      MONGO_INITDB_ROOT_PASSWORD: $DB_PASSWORD
     ports:
-      - 5432:5432
+      - 27017:27017
     volumes:
-      - ./data/:/var/lib/postgresql/data
-      - ./sql_init_scripts/:/docker-entrypoint-initdb.d/
+      - ./data/:/data/db

@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from typing import Dict, List, Self
 
 
@@ -10,11 +10,13 @@ class Veld:
 
 @dataclass(kw_only=True)
 class VeldRepo:
-    id: int = None
     local_path: str = None
     remote_url: str = None
     head_commit: str = None
     commits: Dict[str, List[Veld]] = None
+    
+    def to_dict(self):
+        return asdict(self)
     
     def __iter__(self):
         for veld_list in self.commits.values():
@@ -36,29 +38,33 @@ class VeldRepo:
 
 @dataclass()
 class Veld:
-    id: int = None
-    veld_repo: VeldRepo = None
     commit: str = None
     file_name: str = None
     branch: List[str] = None
     rel_parents: List[Veld] = None
     rel_successors: List[Veld] = None
     
+    def make_db_id(self):
+        return self.commit + "/" + self.file_name
+    
+    def to_dict(self):
+        return asdict(self)
+    
     def __repr__(self):
-        return f"Veld: {self.commit} at {self.veld_repo.remote_url}"
+        return f"Veld: {self.commit}"
     
     def __hash__(self):
         pass
     
     def __eq__(self, other):
-        pass
+        return self.commit == other.commit
 
 
 @dataclass(kw_only=True)
 class DataVeld(Veld):
     
     def __repr__(self):
-        return f"DataVeld: {self.commit} at {self.veld_repo.remote_url}"
+        return f"DataVeld: {self.commit}"
 
 
 @dataclass(kw_only=True)
@@ -66,7 +72,7 @@ class ExecutableVeld(Veld):
     image_digest: str = None
     
     def __repr__(self):
-        return f"ExecutableVeld: {self.commit} at {self.veld_repo.remote_url}"
+        return f"ExecutableVeld: {self.commit}"
 
 
 @dataclass(kw_only=True)
@@ -75,5 +81,5 @@ class ChainVeld(Veld):
     sub_velds: List[Veld] = None
     
     def __repr__(self):
-        return f"ChainVeld: {self.commit} at {self.veld_repo.remote_url}"
+        return f"ChainVeld: {self.commit}"
 
