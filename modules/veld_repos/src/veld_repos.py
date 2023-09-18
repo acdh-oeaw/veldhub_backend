@@ -117,6 +117,7 @@ def load_veld_repos(repos_folder: str, veld_repo_dict: Dict = None) -> Set[VeldR
                                 if veld.sub_velds is None:
                                     veld.sub_velds = []
                                 veld.sub_velds.append(sub_veld)
+                    del veld.submodules_data_tmp
         return veld_repo_dict
     
     if veld_repo_dict is None:

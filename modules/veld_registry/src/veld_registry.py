@@ -24,6 +24,8 @@ def upsert_veld(veld: Veld) -> Veld:
         veld_dict = veld.to_dict()
         veld_dict["type"] = veld.__class__.__name__
         veld_dict["_id"] = veld.make_db_id()
+        if type(veld) is ChainVeld and veld.sub_velds is not None:
+            veld_dict["sub_velds"] = [veld.make_db_id() for veld in veld.sub_velds]
         upsert_result = db.veld.update_one(
             filter={"_id": veld_dict["_id"]},
             update={"$set": veld_dict},
@@ -32,7 +34,19 @@ def upsert_veld(veld: Veld) -> Veld:
         
     def validate(veld):
         veld_db = get_velds(_id=veld.make_db_id())
-        if len(veld_db) != 1 or veld != veld_db[0]:
+        is_error = False
+        if len(veld_db) != 1:
+            is_error = True
+        elif type(veld) is ChainVeld:
+            veld_dict = veld.to_dict()
+            veld_dict_db = veld_db[0].to_dict()
+            del veld_dict["sub_velds"]
+            del veld_dict_db["sub_velds"]
+            if veld_dict != veld_dict_db:
+                is_error = True
+        elif veld != veld_db[0]:
+            is_error = True
+        if is_error:
             raise Exception(f"Something went wrong when persisting {veld}")
         return veld_db[0]
     
@@ -60,7 +74,21 @@ def upsert_veld_repo(veld_repo: VeldRepo) -> VeldRepo:
         
     def validate(veld_repo):
         veld_repo_db = get_veld_repos(remote_url=veld_repo.remote_url)
-        if len(veld_repo_db) != 1 or veld_repo != veld_repo_db[0]:
+        is_error = False
+        if len(veld_repo_db) != 1:
+            is_error = True
+        else:
+            veld_repo_dict = veld_repo.to_dict()
+            veld_repo_db_dict = veld_repo_db[0].to_dict()
+            for veld_list in veld_repo_dict["velds"].values():
+                for veld_dict in veld_list:
+                    veld_dict.pop("sub_velds", None)
+            for veld_list in veld_repo_db_dict["velds"].values():
+                for veld_dict in veld_list:
+                    veld_dict.pop("sub_velds", None)
+            if veld_repo_dict != veld_repo_db_dict:
+                is_error = True
+        if is_error:
             raise Exception(f"Something went wrong when persisting {veld_repo}")
         return veld_repo_db[0]
     
