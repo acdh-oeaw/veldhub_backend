@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List
 
 import pymongo
 from bson import ObjectId
@@ -69,38 +69,55 @@ def upsert_veld_repo(veld_repo: VeldRepo) -> VeldRepo:
     return veld_repo
 
 
+def build_veld_from_dict(veld_dict: Dict) -> Veld:
+    veld_type = veld_dict.pop("type")
+    del(veld_dict["_id"])
+    if veld_type == "DataVeld":
+        veld = DataVeld(**veld_dict)
+    elif veld_type == "ExecutableVeld":
+        veld = ExecutableVeld(**veld_dict)
+    elif veld_type == "ChainVeld":
+        veld = ChainVeld(**veld_dict)
+    else:
+        raise Exception("missing VELD type from db")
+    return veld
+
+
+def build_veld_repo_from_dict(veld_repo_dict: Dict) -> VeldRepo:
+    veld_repo_dict["remote_url"] = veld_repo_dict.pop("_id")
+    veld_dict_all = {}
+    for veld_dict_single in veld_repo_dict["velds"]:
+        veld = build_veld_from_dict(veld_dict_single)
+        veld_list_per_commit = veld_dict_all.get(veld.commit, [])
+        veld_list_per_commit.append(veld)
+        veld_dict_all[veld.commit] = veld_list_per_commit
+    del veld_repo_dict["velds"]
+    veld_repo = VeldRepo(**veld_repo_dict)
+    veld_repo.velds = veld_dict_all
+    return veld_repo
+
+
 def get_velds(**kwargs) -> List[Veld]:
-    result = list(db.veld.find(kwargs))
+    veld_dict_list = list(db.veld.find(kwargs))
     veld_list = []
-    for veld_dict in result:
-        veld_type = veld_dict.pop("type")
-        del(veld_dict["_id"])
-        if veld_type == "DataVeld":
-            veld_list.append(DataVeld(**veld_dict))
-        elif veld_type == "ExecutableVeld":
-            veld_list.append(ExecutableVeld(**veld_dict))
-        elif veld_type == "ChainVeld":
-            veld_list.append(ChainVeld(**veld_dict))
+    for veld_dict in veld_dict_list:
+        veld_list.append(build_veld_from_dict(veld_dict))
     return veld_list
 
 
 def get_veld_repos(**kwargs) -> List[VeldRepo]:
     kwargs["_id"] = kwargs.pop("remote_url")
-    result = list(
-        db.veld_repo.aggregate(
-            [
-                {
-                    "$lookup": {
-                        "from": "veld",
-                        "localField": "velds",
-                        "foreignField": "_id",
-                        "as": "velds"
-                    }
-                },
-            ]
-        )
-    )
+    veld_repo_dict_list = list(db.veld_repo.aggregate([{
+        "$lookup": {
+            "from": "veld",
+            "localField": "velds",
+            "foreignField": "_id",
+            "as": "velds"
+        }
+    }]))
     veld_repo_list = []
+    for veld_repo_dict in veld_repo_dict_list:
+        veld_repo_list.append(build_veld_repo_from_dict(veld_repo_dict))
     return veld_repo_list
     
     

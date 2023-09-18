@@ -27,7 +27,7 @@ class VeldRepo:
         return hash(self.remote_url)
     
     def __eq__(self, other):
-        return self.remote_url == other.remote_url
+        return self.to_dict() == other.to_dict()
     
     def __str__(self):
         pass
@@ -57,7 +57,7 @@ class Veld:
         pass
     
     def __eq__(self, other):
-        return self.commit == other.commit
+        return self.to_dict() == other.to_dict()
 
 
 @dataclass(kw_only=True)
