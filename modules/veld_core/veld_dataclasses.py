@@ -13,13 +13,13 @@ class VeldRepo:
     local_path: str = None
     remote_url: str = None
     head_commit: str = None
-    commits: Dict[str, List[Veld]] = None
+    velds: Dict[str, List[Veld]] = None
     
     def to_dict(self):
         return asdict(self)
     
     def __iter__(self):
-        for veld_list in self.commits.values():
+        for veld_list in self.velds.values():
             for veld in veld_list:
                 yield veld
 

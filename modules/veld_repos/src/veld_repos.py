@@ -89,10 +89,10 @@ def load_veld_repos(repos_folder: str, veld_repo_dict: Dict = None) -> Set[VeldR
                             veld_repo = VeldRepo(
                                 local_path=potential_repo_path,
                                 remote_url=repo.remote().url,
-                                commits={},
+                                velds={},
                                 head_commit=commit.hexsha,
                             )
-                        veld_repo.commits[commit.hexsha] = veld_list_per_commit
+                        veld_repo.velds[commit.hexsha] = veld_list_per_commit
                         for veld in veld_list_per_commit:
                             veld.commit = commit.hexsha
                             if type(veld) is ChainVeld:
@@ -112,7 +112,7 @@ def load_veld_repos(repos_folder: str, veld_repo_dict: Dict = None) -> Set[VeldR
                             #  exist locally yet.
                             print(f"sub_veld_repo not yet crawled: {sm[1]}")
                         else:
-                            sub_veld_list = sub_veld_repo.commits[sm[0]]
+                            sub_veld_list = sub_veld_repo.velds[sm[0]]
                             for sub_veld in sub_veld_list:
                                 if veld.sub_velds is None:
                                     veld.sub_velds = []

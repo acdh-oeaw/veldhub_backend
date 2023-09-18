@@ -50,7 +50,7 @@ def upsert_veld_repo(veld_repo: VeldRepo) -> VeldRepo:
             "_id": veld_repo.remote_url,
             "local_path": veld_repo.local_path,
             "head_commit": veld_repo.head_commit,
-            "commits": [veld.make_db_id() for veld in veld_repo]
+            "velds": [veld.make_db_id() for veld in veld_repo]
         }
         upsert_result = db.veld_repo.update_one(
             filter={"_id": veld_repo.remote_url},
@@ -89,13 +89,12 @@ def get_veld_repos(**kwargs) -> List[VeldRepo]:
     result = list(
         db.veld_repo.aggregate(
             [
-                {"$unwind": "$commits"},
                 {
                     "$lookup": {
                         "from": "veld",
-                        "localField": "commits",
+                        "localField": "velds",
                         "foreignField": "_id",
-                        "as": "commits"
+                        "as": "velds"
                     }
                 },
             ]
