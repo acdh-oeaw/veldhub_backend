@@ -12,6 +12,7 @@ services:
       dockerfile: ./Dockerfile
     volumes:
       - ./modules:/modules
+    working_dir: /modules
     environment:
       DB_HOST: $DB_HOST
       DB_DATABASE: $DB_DATABASE
@@ -29,6 +30,7 @@ services:
       dockerfile: ./Dockerfile
     volumes:
       - ./modules:/modules
+    working_dir: /modules
 
 networks:
   veldhub_backend_network:
