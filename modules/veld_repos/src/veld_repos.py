@@ -3,7 +3,8 @@ from typing import Dict, List, Set, Tuple
 
 from git import GitCommandError, Repo
 
-from veld_core.veld_dataclasses import ChainVeld, Veld, VeldRepo
+from veld_core.veld_dataclasses import ChainVeld, ExecutableVeld, Veld, VeldRepo
+from veld_docker import veld_docker
 from veld_parser.veld_parser import parse_veld_folder
 
 
@@ -18,7 +19,7 @@ def pull_veld_repo(repo_url) -> str:
 #  a problem, the crawler must be refactored.
 def load_veld_repos(repos_folder: str, veld_repo_dict: Dict = None) -> Set[VeldRepo]:
     
-    def build_this_veld_repo(potential_repo_path) -> VeldRepo | None:
+    def build_this_veld_repo(repo_path) -> VeldRepo | None:
         
         def checkout_with_submodules(repo: Repo, commit: str):
             """
@@ -69,13 +70,8 @@ def load_veld_repos(repos_folder: str, veld_repo_dict: Dict = None) -> Set[VeldR
                         submodules_data.append((sm_commit, sm_url))
             return submodules_data
         
-        veld_repo = None
-        try:
-            repo = Repo(potential_repo_path)
-        except:
-            print(f"not a repo: {potential_repo_path}")
-        else:
-            print(f"parsing for potential veld repo: {potential_repo_path}")
+        def iterate_over_commits(repo, repo_path):
+            veld_repo = None
             repo = checkout_with_submodules(repo, "main")
             for commit in list(repo.iter_commits()):
                 try:
@@ -83,11 +79,11 @@ def load_veld_repos(repos_folder: str, veld_repo_dict: Dict = None) -> Set[VeldR
                 except GitCommandError as ex:
                     print(ex)
                 else:
-                    veld_list_per_commit = parse_veld_folder(potential_repo_path)
+                    veld_list_per_commit = parse_veld_folder(repo_path)
                     if veld_list_per_commit is not None:
                         if veld_repo is None:
                             veld_repo = VeldRepo(
-                                local_path=potential_repo_path,
+                                local_path=repo_path,
                                 remote_url=repo.remote().url,
                                 velds={},
                                 head_commit=commit.hexsha,
@@ -96,8 +92,19 @@ def load_veld_repos(repos_folder: str, veld_repo_dict: Dict = None) -> Set[VeldR
                         for veld in veld_list_per_commit:
                             veld.commit = commit.hexsha
                             if type(veld) is ChainVeld:
-                                veld.submodules_data_tmp = get_submodule_data(potential_repo_path)
+                                veld.submodules_data_tmp = get_submodule_data(repo_path)
+                            if type(veld) is ChainVeld or type(veld) is ExecutableVeld:
+                                veld_docker.build_docker_image(veld, repo_path)
             repo = checkout_with_submodules(repo, "main")
+            return veld_repo
+        
+        try:
+            repo = Repo(repo_path)
+        except:
+            print(f"not a repo: {repo_path}")
+        else:
+            print(f"parsing for potential veld repo: {repo_path}")
+            veld_repo = iterate_over_commits(repo, repo_path)
         return veld_repo
     
     def link_sub_velds(veld_repo_dict):

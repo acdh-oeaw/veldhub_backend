@@ -1,7 +1,7 @@
 from veld_core.veld_dataclasses import ExecutableVeld, ChainVeld, Veld
 
 
-def build_docker_image(veld: ExecutableVeld | ChainVeld) -> ExecutableVeld | ChainVeld:
+def build_docker_image(veld: ExecutableVeld | ChainVeld, repo_path: str) -> ExecutableVeld | ChainVeld:
     return veld
 
 
