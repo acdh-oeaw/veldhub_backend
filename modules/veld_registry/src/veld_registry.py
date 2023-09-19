@@ -95,7 +95,15 @@ def build_veld_from_dict(veld_dict: Dict) -> Veld:
     elif veld_type == "ExecutableVeld":
         veld = ExecutableVeld(**veld_dict)
     elif veld_type == "ChainVeld":
+        sub_velds = []
+        sub_veld_id_list = veld_dict.get("sub_velds")
+        if sub_veld_id_list is not None:
+            for sub_veld_id in veld_dict.get("sub_velds"):
+                sub_velds.extend(get_velds(_id=sub_veld_id))
+        del veld_dict["sub_velds"]
         veld = ChainVeld(**veld_dict)
+        if sub_velds != []:
+            veld.sub_velds = sub_velds
     else:
         raise Exception("missing VELD type from db")
     return veld
