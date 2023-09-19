@@ -132,7 +132,8 @@ def get_velds(**kwargs) -> List[Veld]:
 
 
 def get_veld_repos(**kwargs) -> List[VeldRepo]:
-    kwargs["_id"] = kwargs.pop("remote_url")
+    if "remote_url" in kwargs:
+        kwargs["_id"] = kwargs.pop("remote_url")
     veld_repo_dict_list = list(db.veld_repo.aggregate([
         {"$match": kwargs},
         {"$lookup": {
